@@ -126,7 +126,7 @@ def main():
 	parser.add_argument('-i', '--image', type=str, help="Filepath or Name of Image to transform")
 	parser.add_argument('-g', '--grayscale', action='store_true', help="Converts an image to GrayScale")
 	parser.add_argument('-b','--blur', type=int, help="Blurs an RGB Image on a scale of 0-5")
-	parser.add_argument('-o', '--output', type=str, help="Filepath or Name of Output file")
+	parser.add_argument('-o', '--output', type=str, help="Filepath or Name + Extension type of Output file")
 
 	
 	if len(sys.argv) < 2:
@@ -144,6 +144,7 @@ def main():
 		print "Applying Blur to %r" % args.image
 		if len(filename.shape) < 3:
 			print "Error: Grayscale image or scalar provided. RGB Image Needed."
+			sys.exit(1)
 		else:
 			filename = Blur(filename, args.blur)
 			print "Done."
@@ -159,8 +160,11 @@ def main():
 
 	if args.output:
 			output = "%s" % args.output
-		
-	misc.imsave(output + ".jpg", filename)
+			misc.imsave(output, filename)
+
+
+	if not args.output: 
+		misc.imsave(output + ".jpg", filename)
 
 	
 #Main Execution

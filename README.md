@@ -51,7 +51,7 @@ The output image will be saved in the same location as the input image. The file
 * -i IMAGE or --image IMAGE - path to the image to transform.
 * -b PASSES or --blur PASSES - Blur an RGB image, with 0-5 passes for desired intensity.
 * -g or --grayscale - Convert an image from RGB to grayscale.
-* -o FILEPATH or --output FILEPATH - Designate a specific filepath or name for the output file.
+* -o FILEPATH or --output FILEPATH - Designate a specific filepath or name and extension type for the output file.
 ```
 
 Note: The blur function can only take in an RGB image. In addition, while each pass will increase the intensity of the blur, it will significantly slow down the function. For this reason, the number of passes is limited to 5. 
@@ -66,10 +66,10 @@ The following will convert `Racoon.jpg` to grayscale and will output in the dire
 ./conversion.py -i samples/Racoon.jpg -g
 ```
 
-The following will convert `Racoon.jpg` to grayscale and output back in the `samples/` directory as `RG.jpg`:
+The following will convert `Racoon.jpg` to grayscale and output back in the `samples/` directory as `RG.png`:
 
 ```
-./conversion.py -i samples/Racoon.jpg -g -o samples/RG
+./conversion.py -i samples/Racoon.jpg -g -o samples/RG.png
 ```
 
 The following will apply a blur filter with 3 passes to `flower.jpg` and will output in the directory with conversion.py:
@@ -81,7 +81,7 @@ The following will apply a blur filter with 3 passes to `flower.jpg` and will ou
 The following will apply both grayscale and blur (with 5 passes) filters to `flower.jpg` and will output into `samples/` as: `FGB.jpg`
 
 ```
-./conversion.py - samples/flower.jpg -g -b 5 -o samples/FGB
+./conversion.py - samples/flower.jpg -g -b 5 -o samples/FGB.jpg
 ```
 
 ## How to Get Help
