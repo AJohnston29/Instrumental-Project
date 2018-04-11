@@ -86,7 +86,7 @@ The following will apply both grayscale and blur (with 5 passes) filters to `flo
 
 ## How to Get Help
 
-Have a question? Run into a problem? Feel free to [send me an email](anthondj@usc.edu) and I will respond within one business day.
+Have a question? Run into a problem? Feel free to [send me an email](anthondj@usc.edu) or file a GitHub issue and I will respond within one business day.
 
 ## The Author
 
