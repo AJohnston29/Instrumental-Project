@@ -1,31 +1,32 @@
 #!/usr/bin/python
 #Script created by Anthony Johnston
-
+import os
 import sys
+import argparse
 from scipy import misc
 import numpy as np
 from PIL import Image
 
 #RGB to Grayscale Conversion Function
 def GrayScale(filename):
+
+	#Defines the weighted average formula for luminosity
 	def LuminosityMethod(pixel):
 		return 0.21*(pixel[0])+0.72*(pixel[1])+ 0.07*(pixel[2])
 
+	#Parse through every pixel in the image and run it through the formula
 	gray = np.zeros(filename.shape[0:-1])
 	for row in range(len(filename)):
 		for col in range(len(filename[row])):
 			gray[row][col] = LuminosityMethod(filename[row][col])
 
+	#Pass grayscaled image back to main
 	return gray
 
-	#The line has the same affect as multiple nested for loops
-	#The line multiplies every pixel in the file array in a row*col manner
-	#with 0.299, 0.587, and 0.114, which is a weighted average
-	#The result is a grayscale conversion
 
-def Blur(filename):
+def Blur(filename, passes):
 	imgarray = np.asarray(filename)
-
+	
 	#Pixel radius of blur
 	radius = 2
 
@@ -37,7 +38,7 @@ def Blur(filename):
 	height = imgarray.shape[0] #Rows (Y-Variable)
 	width = imgarray.shape[1] #Columns (X-Variable)
 
-	def blur_(imgarray):
+	def ApplyBlur(imgarray):
 		#Creates two temporary arrays for image, based on dimensions
 		tempA = np.zeros((height, width, 3), np.uint8)
 		tempB = np.zeros((height, width, 3), np.uint8)
@@ -106,54 +107,63 @@ def Blur(filename):
 	#Time to step through the array multiple times
 	#For each pass across the entire array, the amount of blur will increase
 	#For this case, it will pass through 3 times
-	passes = 3
 	#Another temp array to hold values from each pass
 	tempC = imgarray
 	for k in range(passes):
-		tempC = blurIt(tempC)
+		#Limits # of passes to 6, for speed 
+		if k < 6:
+			tempC = ApplyBlur(tempC)
 
 	#Get image from array
 	blurredimg = Image.fromarray(np.uint8(tempC))
 	#Pass blurred image back to main
 	return blurredimg
 
+def main():
+
+	parser = argparse.ArgumentParser()
+
+	parser.add_argument('-i', '--image', type=str, help="Filepath or Name of Image to transform")
+	parser.add_argument('-g', '--grayscale', action='store_true', help="Converts an image to GrayScale")
+	parser.add_argument('-b','--blur', type=int, help="Blurs an RGB Image on a scale of 0-5")
+	parser.add_argument('-o', '--output', type=str, help="Filepath or Name of Output file")
+
+	
+	if len(sys.argv) < 2:
+		parser.print_help(sys.stderr)
+		sys.exit(1)
+
+	args = parser.parse_args()
+
+	filename = misc.imread(args.image)
+	
+	output = os.path.basename(args.image).split(".")[0]
+
+	#Checks for blur flag and performs blur
+	if args.blur: 
+		print "Applying Blur to %r" % args.image
+		if len(filename.shape) < 3:
+			print "Error: Grayscale image or scalar provided. RGB Image Needed."
+		else:
+			filename = Blur(filename, args.blur)
+			print "Done."
+			if not args.output:
+				output = output + "_blur"
+	#Checks for grayscale flag and performs grayscale
+	if args.grayscale:
+		print "Applying Grayscale to %r" % args.image
+		filename = GrayScale(np.asarray(filename))
+		print "Done."
+		if not args.output:
+			output = output + "_gray"
+
+	if args.output:
+			output = "%s" % args.output
+		
+	misc.imsave(output + ".jpg", filename)
+
+	
 #Main Execution
 if __name__ == "__main__":
-	#Library takes in an image based on user input
-	if len(sys.argv) < 2:
-		print "Error: Define filename and transformation"
-	else:
-		filename = misc.imread(sys.argv[1])
-
-
-		#Program checks for which transformation to complete
-
-		#Checks for too few arguments
-		if len(sys.argv) < 3:
-			print "Too few arguments: Define transformation"
-
-		#If filename + 1 extra argument is given, check which transformation
-		elif len(sys.argv) == 3:
-			#Checks if third argument is grayscale, performs grayscale
-			if sys.argv[2] == "grayscale":
-				gray = GrayScale(filename)
-				print "Done."
-				output = sys.argv[1].split(".")[0] + "_gray.jpg"
-				misc.imsave(output, gray)
-			#Checks if third argument is blur, performs blur
-			elif sys.argv[2] == "blur":
-				blur = Blur(filename)
-				print "Done."
-				output = sys.argv[1].split(".")[0] + "_blur.jpg"
-				misc.imsave(output, blur)
-			#Checks if third argument is both, will perform both transformations
-			elif sys.argv[2] == "both":
-				step1 = Blur(filename)
-				step2 = GrayScale(np.asarray(step1))
-				print "Done."
-				output = sys.argv[1].split(".")[0] + "_both.jpg"
-				misc.imsave(output, step2)
-		#Checks for too many arguments
-		elif len(sys.argv) > 3:
-			print "Too many arguments"
+	main()
 
